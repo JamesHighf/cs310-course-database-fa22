@@ -20,47 +20,88 @@ public class Database {
     
     /* PUBLIC METHODS */
 
-    public String getSectionsAsJSON(int termid, String subjectid, String num) {
+    public String getSectionsAsJSON(int termid, String subjectid, String num) {     //this method searches for sections matching the subject ID, course number, and term ID
         
         String result = null;
         
         // INSERT YOUR CODE HERE
         
+        //
+        
         return result;
         
     }
     
-    public int register(int studentid, int termid, int crn) {
+    public int register(int studentid, int termid, int crn) {      //this method registers for a section, inserting student ID, term ID, and CRN
         
         int result = 0;
         
         // INSERT YOUR CODE HERE
+        try
+        {
+        String query = "INSERT INTO registration (studentid,termid,crn) VALUES (?, ?, ?)";
+        PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        pstmt.setInt(1, studentid);
+        pstmt.setInt(2, termid);
+        pstmt.setInt(3, crn);
+        result = pstmt.executeUpdate();
         
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+//
+        System.out.println(result);
         return result;
         
     }
 
-    public int drop(int studentid, int termid, int crn) {
+    public int drop(int studentid, int termid, int crn) {       //this method drops a course record
         
         int result = 0;
         
         // INSERT YOUR CODE HERE
-        
+        try
+        {
+        String query = "DELETE FROM registration WHERE studentID = (?) AND termid = (?) AND crn = (?)";
+        PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        pstmt.setInt(1, studentid);
+        pstmt.setInt(2, termid);
+        pstmt.setInt(3, crn);
+        result = pstmt.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
+        //
+        System.err.println(result);
         return result;
         
     }
     
-    public int withdraw(int studentid, int termid) {
+    public int withdraw(int studentid, int termid) {   //this method withdraws from all courses
         
         int result = 0;
         
         // INSERT YOUR CODE HERE
-        
+         try
+        {
+        String query = "DELETE FROM registration WHERE studentID = (?)";
+        PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        pstmt.setInt(1, studentid);
+        result = pstmt.executeUpdate();
+        }
+        catch (SQLException e)
+        {
+            e.printStackTrace();
+        }
         return result;
         
     }
     
-    public String getScheduleAsJSON(int studentid, int termid) {
+    public String getScheduleAsJSON(int studentid, int termid) {    //this method lists all sections for a given student and term ID
         
         String result = null;
         
