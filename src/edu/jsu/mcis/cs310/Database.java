@@ -24,9 +24,21 @@ public class Database {
         
         String result = null;
         
-        // INSERT YOUR CODE HERE
+        String query = "SELECT * FROM section WHERE termid=? AND subjectid=? AND num=?";
+        try {
+            PreparedStatement stmt = connection.prepareStatement(query);
+            stmt.setInt(1, termid);
+            stmt.setString(2, subjectid);
+            stmt.setString(3, num);
+            
+            if(stmt.execute()){
+                ResultSet resultSet = stmt.getResultSet();
+                result = getResultSetAsJSON(resultSet);
+            }
+            }
+           
+        catch (Exception e) { e.printStackTrace(); }
         
-        //
         
         return result;
         
@@ -36,11 +48,10 @@ public class Database {
         
         int result = 0;
         
-        // INSERT YOUR CODE HERE
         try
         {
         String query = "INSERT INTO registration (studentid,termid,crn) VALUES (?, ?, ?)";
-        PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement pstmt = connection.prepareStatement(query);
         pstmt.setInt(1, studentid);
         pstmt.setInt(2, termid);
         pstmt.setInt(3, crn);
@@ -52,7 +63,6 @@ public class Database {
             e.printStackTrace();
         }
 //
-        System.out.println(result);
         return result;
         
     }
@@ -61,11 +71,10 @@ public class Database {
         
         int result = 0;
         
-        // INSERT YOUR CODE HERE
+        String query = "DELETE FROM registration WHERE studentid = (?) AND termid = (?) AND crn = (?)";
         try
         {
-        String query = "DELETE FROM registration WHERE studentID = (?) AND termid = (?) AND crn = (?)";
-        PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement pstmt = this.connection.prepareStatement(query);
         pstmt.setInt(1, studentid);
         pstmt.setInt(2, termid);
         pstmt.setInt(3, crn);
@@ -75,8 +84,6 @@ public class Database {
         {
             e.printStackTrace();
         }
-        //
-        System.err.println(result);
         return result;
         
     }
@@ -85,10 +92,10 @@ public class Database {
         
         int result = 0;
         
-        // INSERT YOUR CODE HERE
+        
          try
         {
-        String query = "DELETE FROM registration WHERE studentID = (?)";
+        String query = "DELETE FROM registration WHERE studentid = (?)";
         PreparedStatement pstmt = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
         pstmt.setInt(1, studentid);
         result = pstmt.executeUpdate();
@@ -105,8 +112,22 @@ public class Database {
         
         String result = null;
         
-        // INSERT YOUR CODE HERE
+       
+        String query = "SELECT r.studentid, r.termid, s.scheduletypeid, s.instructor, s.num, s.start, s.days, s.section, s.end, s.where, s.crn, s.subjectid FROM registration AS r, section AS s, term AS t WHERE r.studentid=? AND r.termid=? AND r.crn=s.crn AND s.termid=t.id";
+        PreparedStatement stmt;
+        try {
+        stmt = connection.prepareStatement(query);
+        stmt.setInt(1, termid);
+        stmt.setInt(2, termid);
         
+        if(stmt.execute()){
+            ResultSet resultSet = stmt.getResultSet();
+        result = getResultSetAsJSON(resultSet);
+        }
+            }
+        
+           
+        catch (Exception e) { e.printStackTrace(); }
         return result;
         
     }
@@ -201,7 +222,13 @@ public class Database {
             ResultSetMetaData metadata = resultset.getMetaData();
             int columnCount = metadata.getColumnCount();
             
-            // INSERT YOUR CODE HERE
+            while (resultset.next()) {
+                JSONObject obj = new JSONObject();
+                for (int i = 0; i < columnCount; i++) {
+                    obj.put(metadata.getColumnLabel(i+1).toLowerCase(), resultset.getObject(i+1).toString());
+                }
+                json.add(obj);
+            }
         
         }
         catch (Exception e) { e.printStackTrace(); }
